@@ -71,7 +71,7 @@ namespace LD47
             Console.WriteLine();
             Console.WriteLine();
             Thread.Sleep(400);
-            Utils.WriteOneByOne($"The Loop Oriented Oscillating Programmer is crucial to our survival on this alien planet", 50);
+            Utils.WriteOneByOne($"The Loop Oriented Oscillating Processor is crucial to our survival on this alien planet", 50);
             Console.WriteLine();
             Console.WriteLine();
             Thread.Sleep(400);

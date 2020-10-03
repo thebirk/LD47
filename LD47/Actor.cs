@@ -8,6 +8,7 @@ namespace LD47
 {
     public enum Faction
     {
+        Thing,
         Player,
         Alien,
     }
@@ -40,6 +41,10 @@ namespace LD47
         public int MaxStamina { get; set; }
         public int Stamina { get; set; }
         public int XpReward { get; set; }
+        public Faction Faction { get; set; } = Faction.Alien;
+        public bool Solid { get; set; } = true;
+        public bool CanOperateDoors { get; set; } = false;
+        public bool CanForget { get; set; } = true;
 
         public Room Room { get; set; }
         public int X { get; set; }
@@ -54,7 +59,7 @@ namespace LD47
 
         public Actor() { }
 
-        public int Hit(int dmg)
+        public virtual int OnHit(Actor other, int dmg)
         {
             // shield stuff
 
@@ -69,13 +74,21 @@ namespace LD47
 
         public virtual void Die()
         {
-            Room.Remove(this);
+            // do something I guess?
+        }
+
+        public virtual void Action(Actor other)
+        {
+
         }
 
         public void MeleeAttack(Actor other)
         {
+            //TODO: Check faction
+            if (Faction == other.Faction) return; // No friendly fire
+
             var dmg = Strength;
-            other.Hit(dmg);
+            other.OnHit(this, dmg);
 
             if (!other.Alive)
             {
@@ -110,7 +123,7 @@ namespace LD47
             }
 
             var actor = Room.GetActorAt(dstX, dstY);
-            if (actor != null)
+            if (actor != null && actor.Solid)
             {
                 MeleeAttack(actor);
 
@@ -132,11 +145,34 @@ namespace LD47
             return true;
         }
 
+        public List<Actor> GetNeighbours()
+        {
+            Actor GetNeighbour(int x, int y)
+            {
+                if (X+x < 0 || X+x >= Room.Proto.Width || Y+y < 0 || Y+y >= Room.Proto.Height) return null;
+
+                return Room.GetActorAt(X + x, Y + y);
+            }
+
+            var neighbours = new List<Actor>();
+            neighbours.Add(GetNeighbour(-1, -1));
+            neighbours.Add(GetNeighbour(0, -1));
+            neighbours.Add(GetNeighbour(1, -1));
+            neighbours.Add(GetNeighbour(1, 0));
+            neighbours.Add(GetNeighbour(-1, 0));
+            neighbours.Add(GetNeighbour(-1, 1));
+            neighbours.Add(GetNeighbour(0, 1));
+            neighbours.Add(GetNeighbour(1, 1));
+            neighbours.RemoveAll((x) => x == null);
+
+            return neighbours;
+        }
+
         bool HasDest = false;
         Tuple<int, int> Dest;
         List<Tuple<int, int>> Path;
 
-        public void Think()
+        public virtual void Think()
         {
             if (!HasDest)
             {
@@ -205,18 +241,24 @@ namespace LD47
                 int y = current.Pos.Item2 + dy;
                 if (x < 0 || x >= Room.Proto.Width || y < 0 || y >= Room.Proto.Height) return null;
 
+                var diag = dx == 0 || dy == 0;
+                var cost = diag ? MathF.Sqrt(1) : 1;
+
                 if (Room.GetTile(x, y).Solid)
                 {
                     return null;
                 }
 
-                var diag = dx == 0 || dy == 0;
+                if(Room.GetActorAt(x, y) != null)
+                {
+                    cost += 2;
+                }
 
                 return new AStarNode
                 {
                     Pos = new Tuple<int, int>(x, y),
                     Prev = current,
-                    Cost = diag ? MathF.Sqrt(1) : 1
+                    Cost = cost
                 };
             }
 

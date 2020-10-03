@@ -10,7 +10,7 @@ You need to retrieve it.
 ----
 
 
-You sneak aboard a ship
+You sneak aboard a ship, get busted, thrown in jail. Jailkey is left in jail, you leave. Jail is start room.
 
 Commandeer ship, generate isaac like world, gotta get to the cockpit
 

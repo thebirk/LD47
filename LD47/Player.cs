@@ -14,11 +14,13 @@ namespace LD47
         public Player(string name)
         {
             Name = name;
-            HP = 10;
-            Strength = 5;
+            HP = MaxHP = 10;
+            Strength = MaxStrength = 1;
             Level = 1;
             Experience = 0;
             XpToLevelUp = 20;
+            Faction = Faction.Player;
+            CanOperateDoors = true;
 
             Character = '@';
             ForegroundColor = ConsoleColor.Blue;
@@ -42,6 +44,20 @@ namespace LD47
             // Dont call base.Die as we want to keep our Room reference for the game over screen
             //base.Die();
             throw new EndGameException(this);
+        }
+
+        public override void Think()
+        {
+            
+        }
+
+        public void DoAction()
+        {
+            var neighbours = GetNeighbours();
+            foreach (var n in neighbours)
+            {
+                n.Action(this);
+            }
         }
     }
 }

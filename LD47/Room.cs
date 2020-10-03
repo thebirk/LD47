@@ -59,6 +59,19 @@ namespace LD47
             actor.Room = null;
         }
 
+        public void Tick()
+        {
+            foreach (var actor in actors)
+            {
+                if (!actor.Alive) continue;
+
+                //TODO: energy stuff
+                actor.Think();
+            }
+
+            actors.RemoveAll(x => !x.Alive);
+        }
+
         private void CalculatePlayerFOV()
         {
             Array.Copy(playerFov, prevPlayerFov, playerFov.Length);
@@ -120,7 +133,7 @@ namespace LD47
                     var fov = playerFov[x + y * Proto.Width];
                     if (fov == PlayerFovKnowledge.CanSee)
                     {
-                        Display.Put(xOffset + x, yOffset + y, tile.Character, tile.Foreground, /*tile.Background*/ ConsoleColor.DarkGray);
+                        Display.Put(xOffset + x, yOffset + y, tile.Character, tile.Foreground, tile.Background);
                     }
                     else if(fov == PlayerFovKnowledge.Remember)
                     {
@@ -136,9 +149,11 @@ namespace LD47
             foreach (var actor in actors)
             {
                 var fov = playerFov[actor.X + actor.Y * Proto.Width];
+                var tile = tiles[actor.X + actor.Y * Proto.Width];
+
                 if (fov == PlayerFovKnowledge.CanSee)
                 {
-                    Display.Put(xOffset + actor.X, yOffset + actor.Y, actor.Character, actor.ForegroundColor, actor.BackgroundColor ?? ConsoleColor.DarkGray);
+                    Display.Put(xOffset + actor.X, yOffset + actor.Y, actor.Character, actor.ForegroundColor, actor.BackgroundColor ?? tile.Background);
                     playerMemory[actor] = new Tuple<int, int>(actor.X, actor.Y);
                 }
                 else
@@ -152,11 +167,22 @@ namespace LD47
                         }
                         else
                         {
-                            Display.Put(xOffset + memory.Item1, yOffset + memory.Item2, '?', ConsoleColor.Gray, actor.BackgroundColor ?? ConsoleColor.Black);
+                            if(actor.CanForget)
+                            {
+                                Display.Put(xOffset + memory.Item1, yOffset + memory.Item2, '?', ConsoleColor.Gray, actor.BackgroundColor ?? tile.Background);
+                            }
+                            else
+                            {
+                                Display.Put(xOffset + actor.X, yOffset + actor.Y, actor.Character, actor.ForegroundColor, actor.BackgroundColor ?? tile.Background);
+                            }
                         }
                     }
                 }
             }
+
+            var player = GetPlayer();
+            var playerTile = GetTile(player.X, player.Y);
+            Display.Put(xOffset + player.X, yOffset + player.Y, player.Character, player.ForegroundColor, player.BackgroundColor ?? playerTile.Background);
         }
 
         public Tile GetTile(int x, int y)

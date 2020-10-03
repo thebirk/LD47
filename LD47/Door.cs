@@ -1,0 +1,58 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace LD47
+{
+    public class Door : Actor
+    {
+        public Item Key { get; set; }
+
+        public Door(Item key = null)
+        {
+            Name = "Door";
+            HP = 1; // we need to be Actor.Alive
+            Solid = true;
+            Key = key;
+            Character = '-';
+            ForegroundColor = ConsoleColor.DarkYellow;
+            Faction = Faction.Thing;
+            CanForget = false;
+        }
+
+        public override int OnHit(Actor other, int dmg)
+        {
+            Debug.Trace("Door: ouch");
+
+            if(Key != null)
+            {
+                // check if actor has correct key in inventory
+                throw new NotImplementedException();
+            }
+            else
+            {
+                if (other.CanOperateDoors && Solid)
+                {
+                    Solid = false;
+                    Character = '.';
+                }
+            }
+
+            return 0;
+        }
+
+        public override void Action(Actor other)
+        {
+            if (other.CanOperateDoors)
+            {
+                Solid = !Solid;
+                Character = Solid ? '-' : '.';
+            }
+        }
+
+        public override void Think()
+        {
+            // doors dont think
+        }
+    }
+}

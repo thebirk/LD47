@@ -25,16 +25,24 @@ namespace LD47
             player.Y = 10;
             room.Add(player);
 
-            var enemy = new Actor();
-            enemy.HP = 10;
-            enemy.Character = 'G';
-            enemy.Name = "Grunt";
-            enemy.Strength = 2;
-            //enemy.X = 14;
-            //enemy.Y = 1;
-            enemy.X = 17;
-            enemy.Y = 19;
-            room.Add(enemy);
+            var door = new Door();
+            door.X = 44;
+            door.Y = 12;
+            room.Add(door);
+
+            for(int i = 0; i < 5; i++)
+            {
+                var enemy = new Actor();
+                enemy.HP = 10;
+                enemy.Character = 'G';
+                enemy.Name = "Grunt";
+                enemy.Strength = 2;
+                //enemy.X = 14;
+                //enemy.Y = 1;
+                enemy.X = 17+i;
+                enemy.Y = 19;
+                room.Add(enemy);
+            }
 
             room.Draw();
             Display.Draw();
@@ -42,7 +50,7 @@ namespace LD47
             bool pauseEnemy = true;
             while (true)
             {
-                if(!pauseEnemy) enemy.Think();
+                room.Tick();
                 var key = Display.ReadKey();
 
                 switch (key.Key)
@@ -64,6 +72,9 @@ namespace LD47
                         break;
                     case ConsoleKey.P:
                         pauseEnemy = !pauseEnemy;
+                        break;
+                    case ConsoleKey.Enter:
+                        player.DoAction();
                         break;
                 }
 
