@@ -15,8 +15,8 @@ namespace LD47
 
     public class Room
     {
+        public readonly RoomProto Proto;
         private readonly List<Actor> actors;
-        private readonly RoomProto Proto;
         private readonly Tile[] tiles;
         private readonly PlayerFovKnowledge[] playerFov;
         private readonly PlayerFovKnowledge[] prevPlayerFov;
@@ -62,13 +62,16 @@ namespace LD47
         private void CalculatePlayerFOV()
         {
             Array.Copy(playerFov, prevPlayerFov, playerFov.Length);
-            Array.Fill(playerFov, PlayerFovKnowledge.Unexplored);
             for(int i = 0; i < playerFov.Length; i++)
             {
                 var prev = prevPlayerFov[i];
                 if(prev == PlayerFovKnowledge.CanSee || prev == PlayerFovKnowledge.Remember)
                 {
                     playerFov[i] = PlayerFovKnowledge.Remember;
+                }
+                else
+                {
+                    playerFov[i] = PlayerFovKnowledge.Unexplored;
                 }
             }
 
@@ -117,7 +120,7 @@ namespace LD47
                     var fov = playerFov[x + y * Proto.Width];
                     if (fov == PlayerFovKnowledge.CanSee)
                     {
-                        Display.Put(xOffset + x, yOffset + y, tile.Character, tile.Foreground, /*tile.Background*/ ConsoleColor.DarkGreen);
+                        Display.Put(xOffset + x, yOffset + y, tile.Character, tile.Foreground, /*tile.Background*/ ConsoleColor.DarkGray);
                     }
                     else if(fov == PlayerFovKnowledge.Remember)
                     {
@@ -135,7 +138,7 @@ namespace LD47
                 var fov = playerFov[actor.X + actor.Y * Proto.Width];
                 if (fov == PlayerFovKnowledge.CanSee)
                 {
-                    Display.Put(xOffset + actor.X, yOffset + actor.Y, actor.Character, actor.ForegroundColor, actor.BackgroundColor);
+                    Display.Put(xOffset + actor.X, yOffset + actor.Y, actor.Character, actor.ForegroundColor, actor.BackgroundColor ?? ConsoleColor.DarkGray);
                     playerMemory[actor] = new Tuple<int, int>(actor.X, actor.Y);
                 }
                 else
@@ -143,7 +146,14 @@ namespace LD47
                     var memory = playerMemory.GetValueOrDefault(actor);
                     if (memory != null)
                     {
-                        Display.Put(xOffset + memory.Item1, yOffset + memory.Item2, '?', ConsoleColor.Gray, actor.BackgroundColor);
+                        if (fov == PlayerFovKnowledge.CanSee)
+                        {
+                            playerMemory.Remove(actor);
+                        }
+                        else
+                        {
+                            Display.Put(xOffset + memory.Item1, yOffset + memory.Item2, '?', ConsoleColor.Gray, actor.BackgroundColor ?? ConsoleColor.Black);
+                        }
                     }
                 }
             }
@@ -175,6 +185,11 @@ namespace LD47
             }
 
             return null;
+        }
+
+        public Player GetPlayer()
+        {
+            return (Player) actors.Single((x) => x.GetType() == typeof(Player));
         }
     }
 }

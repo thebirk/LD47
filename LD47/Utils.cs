@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace LD47
 {
     public class Utils
     {
+        public static void WriteOneByOne(string str, int ms)
+        {
+            foreach (var ch in str)
+            {
+                Console.Write(ch);
+                Thread.Sleep(ms);
+            }
+        }
+
         public static List<Tuple<int, int>> BresenhamCircle(int centerX, int centerY, int radius)
         {
             var edges = new List<Tuple<int, int>>();

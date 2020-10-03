@@ -39,7 +39,8 @@ namespace LD47
 
         public override void Die()
         {
-            base.Die();
+            // Dont call base.Die as we want to keep our Room reference for the game over screen
+            //base.Die();
             throw new EndGameException(this);
         }
     }

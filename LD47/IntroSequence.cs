@@ -44,15 +44,6 @@ namespace LD47
             return $"{FirstNames[rand.Next(0, FirstNames.Length)]} {LastNames[rand.Next(0, LastNames.Length)]}";
         }
 
-        public static void WriteOneByOne(string str, int ms)
-        {
-            foreach (var ch in str)
-            {
-                Console.Write(ch);
-                Thread.Sleep(ms);
-            }
-        }
-
         public static IntroResult Run()
         {
             var result = new IntroResult();
@@ -61,7 +52,7 @@ namespace LD47
             Console.SetCursorPosition(0, 0);
             Console.CursorVisible = true;
 
-            WriteOneByOne("Welcome Agent: ", 100);
+            Utils.WriteOneByOne("Welcome Agent: ", 100);
             result.PlayerName = Console.ReadLine();
             result.PlayerName = result.PlayerName.Trim();
 
@@ -72,24 +63,24 @@ namespace LD47
 
             Console.WriteLine();
 
-            WriteOneByOne($"Agent {result.PlayerName}, last night at 0400 hours we had a break in.", 50);
+            Utils.WriteOneByOne($"Agent {result.PlayerName}, last night at 0400 hours we had a break in.", 50);
             Console.WriteLine();
             Console.WriteLine();
             Thread.Sleep(400);
-            WriteOneByOne($"We are going to need your help to retrieve the L.O.O.P that was stolen.", 50);
+            Utils.WriteOneByOne($"We are going to need your help to retrieve the L.O.O.P that was stolen.", 50);
             Console.WriteLine();
             Console.WriteLine();
             Thread.Sleep(400);
-            WriteOneByOne($"The Loop Oriented Oscillating Programmer is crucial to our survival on this alien planet", 50);
+            Utils.WriteOneByOne($"The Loop Oriented Oscillating Programmer is crucial to our survival on this alien planet", 50);
             Console.WriteLine();
             Console.WriteLine();
             Thread.Sleep(400);
-            WriteOneByOne($"Without it we are doomed", 50);
-            WriteOneByOne($"...", 200);
+            Utils.WriteOneByOne($"Without it we are doomed", 50);
+            Utils.WriteOneByOne($"...", 200);
             Console.WriteLine();
             Console.WriteLine();
             Thread.Sleep(700);
-            WriteOneByOne("Godspeed agent, we are counting on you...", 100);
+            Utils.WriteOneByOne("Godspeed agent, we are counting on you...", 100);
             Console.WriteLine();
 
             Display.ReadKey();
