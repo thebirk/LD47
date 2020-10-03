@@ -10,6 +10,7 @@ namespace LD47
     {
         public static readonly RoomProto Town = new RoomProto("levels/town.txt");
         public static readonly RoomProto StartRoom = new RoomProto("levels/rooms/start.txt");
+        public static readonly RoomProto JailRoom = new RoomProto("levels/rooms/jailroom.txt");
 
         public int Width { get; private set; }
         public int Height { get; private set; }

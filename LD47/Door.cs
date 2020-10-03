@@ -24,17 +24,16 @@ namespace LD47
         {
             Debug.Trace("Door: ouch");
 
-            if(Key != null)
+            if (other.CanOperateDoors && Solid && (Key == null || other.Inventory.Has(Key)))
             {
-                // check if actor has correct key in inventory
-                throw new NotImplementedException();
+                Solid = false;
+                Character = '.';
             }
             else
             {
-                if (other.CanOperateDoors && Solid)
+                if (other.IsPlayer)
                 {
-                    Solid = false;
-                    Character = '.';
+                    
                 }
             }
 
@@ -43,7 +42,7 @@ namespace LD47
 
         public override void Action(Actor other)
         {
-            if (other.CanOperateDoors)
+            if (other.CanOperateDoors && (Key == null || other.Inventory.Has(Key)))
             {
                 Solid = !Solid;
                 Character = Solid ? '-' : '.';

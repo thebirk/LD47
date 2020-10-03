@@ -52,6 +52,7 @@ namespace LD47
         public char Character { get; set; }
         public ConsoleColor ForegroundColor { get; set; } = ConsoleColor.White;
         public ConsoleColor? BackgroundColor { get; set; } = null;
+        public Inventory Inventory { get; set; } = new Inventory();
 
         public bool Alive { get { return HP > 0; } }
 
@@ -88,7 +89,20 @@ namespace LD47
             if (Faction == other.Faction) return; // No friendly fire
 
             var dmg = Strength;
-            other.OnHit(this, dmg);
+            int actualDmg = other.OnHit(this, dmg);
+
+            if (actualDmg > 0)
+            {
+                Game.Instance.Log(new List<LogMessage>
+                {
+                    new LogMessage(this.Name, ConsoleColor.Cyan),
+                    new LogMessage(" hit "),
+                    new LogMessage(other.Name, ConsoleColor.DarkRed),
+                    new LogMessage(" for "),
+                    new LogMessage(actualDmg.ToString(), ConsoleColor.Yellow),
+                    new LogMessage(" HP."),
+                });
+            }
 
             if (!other.Alive)
             {
@@ -242,7 +256,7 @@ namespace LD47
                 if (x < 0 || x >= Room.Proto.Width || y < 0 || y >= Room.Proto.Height) return null;
 
                 var diag = dx == 0 || dy == 0;
-                var cost = diag ? MathF.Sqrt(1) : 1;
+                var cost = diag ? MathF.Sqrt(2) : 1;
 
                 if (Room.GetTile(x, y).Solid)
                 {

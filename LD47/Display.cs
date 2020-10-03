@@ -95,6 +95,23 @@ namespace LD47
             }
         }
 
+        public static void ClearArea(int xStart, int yStart, int width, int height, bool withRedraw = false)
+        {
+            for (int y = yStart; y < yStart + height; y++)
+            {
+                for (int x = xStart; x < xStart + width; x++)
+                {
+                    glyphs[x + y * Width] = new Glyph { };
+                    prevGlyphs[x + y * Width] = new Glyph { Character = '\x00' };
+                }
+            }
+
+            if (withRedraw)
+            {
+                Draw();
+            }
+        }
+
         public static void Draw(bool forceRedraw = false)
         {
             var count = 0;
@@ -114,7 +131,7 @@ namespace LD47
                 {
                     var glyph = glyphs[x + y * Width];
 
-                    if (!glyph.Equals(prevGlyphs[x+y*Width]) || forceRedraw)
+                    if (!glyph.Equals(prevGlyphs[x + y * Width]) || forceRedraw)
                     {
                         Console.SetCursorPosition(x, y);
                         Console.BackgroundColor = glyph.Background;
@@ -127,7 +144,7 @@ namespace LD47
 
             Console.CursorVisible = false;
 
-            for(int i = 0; i < glyphs.Length; i++)
+            for (int i = 0; i < glyphs.Length; i++)
             {
                 prevGlyphs[i] = new Glyph(glyphs[i]);
             }
@@ -190,12 +207,7 @@ namespace LD47
                 }
 
                 var ch = text[i];
-                Put(xOffset, y, new Glyph
-                {
-                    Foreground = foreground,
-                    Background = background,
-                    Character = ch,
-                });
+                Put(xOffset, y, ch, foreground, background);
             }
         }
 

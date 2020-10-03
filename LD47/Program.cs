@@ -12,7 +12,7 @@ namespace LD47
 
             while(true)
             {
-                Display.Init(80, 25);
+                Display.Init(80, 35);
 
                 IntroResult introResult;
                 if (false)

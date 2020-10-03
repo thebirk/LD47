@@ -123,7 +123,7 @@ namespace LD47
             Debug.Trace($"CalculatePlayerFOV took {sw.Elapsed.TotalMilliseconds}ms");
 
             int xOffset = Display.Width / 2 - Proto.Width / 2;
-            int yOffset = Display.Height / 2 - Proto.Height / 2;
+            int yOffset = (Display.Height-10) / 2 - Proto.Height / 2;
 
             for (int y = 0; y < Proto.Height; y++)
             {
