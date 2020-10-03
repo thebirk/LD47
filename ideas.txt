@@ -1,0 +1,28 @@
+L.O.O.P.: Loop Oriented Oscillating Programmer
+
+Alient planet
+Human base
+
+Our L.O.O.P was stolen durin an alien raid.
+You need to retrieve it.
+
+
+----
+
+
+You sneak aboard a ship
+
+Commandeer ship, generate isaac like world, gotta get to the cockpit
+
+---
+
+Direct the auto-pilot to their mothership
+
+Get to command post. Find route to the bridge.
+
+---
+
+---
+
+Getting some item from certain gaurds will reveal other gaurds position like '?'
+Pad? Radio? Guard chip?
