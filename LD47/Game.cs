@@ -66,7 +66,7 @@ namespace LD47
         public void Log(List<LogMessage> msg)
         {
             LogMessages.Add(msg);
-            DrawStatus();
+            //DrawStatus();
         }
 
         public void Run()
@@ -136,6 +136,12 @@ namespace LD47
                         break;
                     case ConsoleKey.Enter:
                         player.DoAction();
+                        break;
+                    case ConsoleKey.R:
+                        Display.Draw(true);
+                        break;
+                    case ConsoleKey.L:
+                        Game.Instance.Log(new List<LogMessage> { new LogMessage("short", ConsoleColor.Red) });
                         break;
                 }
 

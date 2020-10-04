@@ -11,7 +11,6 @@ namespace LD47
         public ConsoleColor Foreground { get; set; } = ConsoleColor.White;
         public ConsoleColor Background { get; set; } = ConsoleColor.Black;
         public char Character { get; set; } = ' ';
-        public bool Dirty { get; set; } = true;
 
         public Glyph() { }
 
@@ -70,23 +69,12 @@ namespace LD47
             Draw(true);
         }
 
-        public static void SetSize(int width, int height)
-        {
-            Width = width;
-            Height = height;
-
-            if (Console.WindowWidth < width || Console.WindowHeight < height)
-            {
-
-            }
-        }
-
-        public static void Clear(bool withRedraw = false)
+        public static void Clear(bool withRedraw = false, bool clearPrev = false)
         {
             for (int i = 0; i < glyphs.Length; i++)
             {
                 glyphs[i] = new Glyph { };
-                prevGlyphs[i] = new Glyph { Character = '\x00' };
+                if(clearPrev) prevGlyphs[i] = new Glyph { Character = '\x00' };
             }
 
             if (withRedraw)
@@ -95,14 +83,14 @@ namespace LD47
             }
         }
 
-        public static void ClearArea(int xStart, int yStart, int width, int height, bool withRedraw = false)
+        public static void ClearArea(int xStart, int yStart, int width, int height, bool withRedraw = false, bool clearPrev = false)
         {
             for (int y = yStart; y < yStart + height; y++)
             {
                 for (int x = xStart; x < xStart + width; x++)
                 {
-                    glyphs[x + y * Width] = new Glyph { };
-                    prevGlyphs[x + y * Width] = new Glyph { Character = '\x00' };
+                    glyphs[x + y * Width].Character = ' ';
+                    if(clearPrev) prevGlyphs[x + y * Width].Character = '\x00';
                 }
             }
 
@@ -125,19 +113,24 @@ namespace LD47
                 forceRedraw = true;
             }
 
+            ConsoleColor? activeForeground = null, activeBackground = null;
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
                     var glyph = glyphs[x + y * Width];
+                    var prev = prevGlyphs[x + y * Width];
 
-                    if (!glyph.Equals(prevGlyphs[x + y * Width]) || forceRedraw)
+                    if (!glyph.Equals(prev) || forceRedraw)
                     {
                         Console.SetCursorPosition(x, y);
-                        Console.BackgroundColor = glyph.Background;
-                        Console.ForegroundColor = glyph.Foreground;
+                        if (activeForeground != glyph.Foreground) Console.ForegroundColor = glyph.Foreground;
+                        if (activeBackground != glyph.Foreground) Console.BackgroundColor = glyph.Background;
                         Console.Write(glyph.Character);
                         count++;
+
+                        activeForeground = glyph.Foreground;
+                        activeBackground = glyph.Background;
                     }
                 }
             }
@@ -150,23 +143,6 @@ namespace LD47
             }
 
             Debug.Trace($"Updated {count} glyphs during draw");
-        }
-
-        public static void Put(int x, int y, Glyph glyph)
-        {
-            if (x < 0 || x >= Width || y < 0 || y >= Height)
-            {
-                return;
-            }
-
-            var oldGlyph = glyphs[x + y * Width];
-
-            glyphs[x + y * Width] = glyph;
-
-            if (glyph != oldGlyph)
-            {
-                glyphs[x + y * Width].Dirty = true;
-            }
         }
 
         public static void Put(int x, int y, char character, ConsoleColor foreground = ConsoleColor.White, ConsoleColor background = ConsoleColor.Black)
@@ -188,7 +164,6 @@ namespace LD47
             glyphs[x + y * Width].Character = character;
             glyphs[x + y * Width].Foreground = foreground;
             glyphs[x + y * Width].Background = background;
-            glyphs[x + y * Width].Dirty = !equal;
         }
 
         public static void WriteLine(string text, int x, int y, ConsoleColor foreground = ConsoleColor.White, ConsoleColor background = ConsoleColor.Black)

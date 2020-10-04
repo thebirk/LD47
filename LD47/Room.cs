@@ -131,6 +131,7 @@ namespace LD47
                 {
                     var tile = tiles[x + y * Proto.Width];
                     var fov = playerFov[x + y * Proto.Width];
+
                     if (fov == PlayerFovKnowledge.CanSee)
                     {
                         Display.Put(xOffset + x, yOffset + y, tile.Character, tile.Foreground, tile.Background);
@@ -146,6 +147,7 @@ namespace LD47
                 }
             }
 
+            //TODO: If a position in playerMemory is inside our fov, we have to clear it
             foreach (var actor in actors)
             {
                 var fov = playerFov[actor.X + actor.Y * Proto.Width];

@@ -263,9 +263,10 @@ namespace LD47
                     return null;
                 }
 
-                if(Room.GetActorAt(x, y) != null)
+                var actor = Room.GetActorAt(x, y);
+                if(actor != null)
                 {
-                    cost += 2;
+                    cost += actor.Solid ? 1 : 0;
                 }
 
                 return new AStarNode
