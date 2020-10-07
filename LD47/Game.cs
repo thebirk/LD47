@@ -143,6 +143,9 @@ namespace LD47
                     case ConsoleKey.L:
                         Game.Instance.Log(new List<LogMessage> { new LogMessage("short", ConsoleColor.Red) });
                         break;
+                    case ConsoleKey.D:
+                        Display.DebugCache = !Display.DebugCache;
+                        break;
                 }
 
                 var sw = new Stopwatch();

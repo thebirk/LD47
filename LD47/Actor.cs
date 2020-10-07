@@ -45,6 +45,7 @@ namespace LD47
         public bool Solid { get; set; } = true;
         public bool CanOperateDoors { get; set; } = false;
         public bool CanForget { get; set; } = true;
+        public Inventory Inventory { get; set; } = new Inventory();
 
         public Room Room { get; set; }
         public int X { get; set; }
@@ -52,11 +53,14 @@ namespace LD47
         public char Character { get; set; }
         public ConsoleColor ForegroundColor { get; set; } = ConsoleColor.White;
         public ConsoleColor? BackgroundColor { get; set; } = null;
-        public Inventory Inventory { get; set; } = new Inventory();
+        public int Energy { get; set; } = 0;
+        public int EnergyGain { get; set; } = 8;
+
 
         public bool Alive { get { return HP > 0; } }
 
         public bool IsPlayer { get; protected set; }
+
 
         public Actor() { }
 
@@ -188,7 +192,7 @@ namespace LD47
 
         public virtual void Think()
         {
-            if (!HasDest)
+            if (Room.ActorVisibleToPlayer(this))
             {
                 var player = Room.GetPlayer();
                 Dest = new Tuple<int, int>(player.X, player.Y);
@@ -208,9 +212,10 @@ namespace LD47
                     Debug.Trace("no path?");
                 }
             }
-            else
+
+            if (HasDest)
             {
-                if (X == Dest.Item1 && Y == Dest.Item2)
+                if (Path.Count == 0 || (X == Dest.Item1 && Y == Dest.Item2))
                 {
                     HasDest = false;
                     return;
@@ -249,14 +254,13 @@ namespace LD47
             }};
             var closed = new List<AStarNode>();
 
-            AStarNode GetNeighbour(AStarNode current, int dx, int dy)
+            AStarNode GetNeighbour(AStarNode current, int dx, int dy, bool diag)
             {
                 int x = current.Pos.Item1 + dx;
                 int y = current.Pos.Item2 + dy;
                 if (x < 0 || x >= Room.Proto.Width || y < 0 || y >= Room.Proto.Height) return null;
 
-                var diag = dx == 0 || dy == 0;
-                var cost = diag ? MathF.Sqrt(2) : 1;
+                var cost = diag ? Utils.SQRT_2 : 1;
 
                 if (Room.GetTile(x, y).Solid)
                 {
@@ -300,16 +304,16 @@ namespace LD47
                 }
 
                 var children = new List<AStarNode>();
-                children.Add(GetNeighbour(current, -1, -1));
-                children.Add(GetNeighbour(current, 0, -1));
-                children.Add(GetNeighbour(current, 1, -1));
+                children.Add(GetNeighbour(current, -1, -1, diag: true));
+                children.Add(GetNeighbour(current, 0, -1, diag: false));
+                children.Add(GetNeighbour(current, 1, -1, diag: true));
 
-                children.Add(GetNeighbour(current, 1, 0));
-                children.Add(GetNeighbour(current, -1, 0));
+                children.Add(GetNeighbour(current, 1, 0, diag: false));
+                children.Add(GetNeighbour(current, -1, 0, diag: false));
 
-                children.Add(GetNeighbour(current, -1, 1));
-                children.Add(GetNeighbour(current, 0, 1));
-                children.Add(GetNeighbour(current, 1, 1));
+                children.Add(GetNeighbour(current, -1, 1, diag: true));
+                children.Add(GetNeighbour(current, 0, 1, diag: false));
+                children.Add(GetNeighbour(current, 1, 1, diag: true));
 
                 children.RemoveAll((x) => x == null);
 
@@ -319,7 +323,6 @@ namespace LD47
                     {
                         continue;
                     }
-
 
                     child.GCost = current.GCost + child.Cost;
                     var dx = Math.Abs(x1 - child.Pos.Item1);

@@ -7,6 +7,8 @@ namespace LD47
 {
     public class Utils
     {
+        public static readonly float SQRT_2 = MathF.Sqrt(2);
+
         public static void WriteOneByOne(string str, int ms)
         {
             foreach (var ch in str)

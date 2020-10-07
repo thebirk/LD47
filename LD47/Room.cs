@@ -20,14 +20,16 @@ namespace LD47
         private readonly Tile[] tiles;
         private readonly PlayerFovKnowledge[] playerFov;
         private readonly PlayerFovKnowledge[] prevPlayerFov;
-        private readonly Dictionary<Actor, Tuple<int, int>> playerMemory;
+        private readonly Dictionary<Actor, (int, int)> playerMemory;
+        private readonly HashSet<Actor> visibleActors;
 
         public Room(RoomProto proto)
         {
             Proto = proto;
             actors = new List<Actor>();
 
-            playerMemory = new Dictionary<Actor, Tuple<int, int>>();
+            visibleActors = new HashSet<Actor>();
+            playerMemory = new Dictionary<Actor, (int, int)>();
             playerFov = new PlayerFovKnowledge[Proto.Width * Proto.Height];
             prevPlayerFov = new PlayerFovKnowledge[Proto.Width * Proto.Height];
             tiles = new Tile[Proto.Width * Proto.Height];
@@ -65,8 +67,12 @@ namespace LD47
             {
                 if (!actor.Alive) continue;
 
-                //TODO: energy stuff
-                actor.Think();
+                actor.Energy += actor.EnergyGain;
+                if (actor.Energy >= 12)
+                {
+                    actor.Energy %= 12;
+                    actor.Think();
+                }
             }
 
             actors.RemoveAll(x => !x.Alive);
@@ -89,7 +95,7 @@ namespace LD47
             }
 
             //wtf? just have the player be global 4head
-            var player = actors.Single(x => x.GetType() == typeof(Player));
+            var player = Game.Instance.Player;
 
             playerFov[(player.X) + (player.Y) * Proto.Width] = PlayerFovKnowledge.CanSee;
 
@@ -111,6 +117,22 @@ namespace LD47
                     }
                     return false;
                 });
+            }
+
+            visibleActors.Clear();
+            for (int y = 0; y < Proto.Height; y++)
+            {
+                for (int x = 0; x < Proto.Width; x++)
+                {
+                    if (playerFov[x + y * Proto.Width] == PlayerFovKnowledge.CanSee)
+                    {
+                        var actor = GetActorAt(x, y);
+                        if (actor != null)
+                        {
+                            visibleActors.Add(actor);
+                        }
+                    }
+                }
             }
         }
 
@@ -138,11 +160,12 @@ namespace LD47
                     }
                     else if(fov == PlayerFovKnowledge.Remember)
                     {
-                        Display.Put(xOffset + x, yOffset + y, tile.Character, ConsoleColor.Gray, tile.Background);
+                        Display.Put(xOffset + x, yOffset + y, tile.Character, ConsoleColor.DarkGray, tile.Background);
                     }
                     else
                     {
-                        Display.Put(xOffset + x, yOffset + y, '░', ConsoleColor.White, ConsoleColor.Black);
+                        //Display.Put(xOffset + x, yOffset + y, '░', ConsoleColor.White, ConsoleColor.Black);
+                        Display.Put(xOffset + x, yOffset + y, ' ', ConsoleColor.White, ConsoleColor.Black);
                     }
                 }
             }
@@ -156,12 +179,12 @@ namespace LD47
                 if (fov == PlayerFovKnowledge.CanSee)
                 {
                     Display.Put(xOffset + actor.X, yOffset + actor.Y, actor.Character, actor.ForegroundColor, actor.BackgroundColor ?? tile.Background);
-                    playerMemory[actor] = new Tuple<int, int>(actor.X, actor.Y);
+                    playerMemory[actor] = (actor.X, actor.Y);
                 }
                 else
                 {
                     var memory = playerMemory.GetValueOrDefault(actor);
-                    if (memory != null)
+                    if (memory != default)
                     {
                         if (fov == PlayerFovKnowledge.CanSee)
                         {
@@ -185,6 +208,11 @@ namespace LD47
             var player = GetPlayer();
             var playerTile = GetTile(player.X, player.Y);
             Display.Put(xOffset + player.X, yOffset + player.Y, player.Character, player.ForegroundColor, player.BackgroundColor ?? playerTile.Background);
+        }
+
+        public bool ActorVisibleToPlayer(Actor actor)
+        {
+            return visibleActors.Contains(actor);
         }
 
         public Tile GetTile(int x, int y)

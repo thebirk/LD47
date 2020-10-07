@@ -49,6 +49,7 @@ namespace LD47
 
         public static int Width { get; private set; }
         public static int Height { get; private set; }
+        public static bool DebugCache { get; set; } = false;
 
         public static void Init(int width, int height)
         {
@@ -113,6 +114,8 @@ namespace LD47
                 forceRedraw = true;
             }
 
+            var rand = new Random();
+            var bg = (ConsoleColor)rand.Next(0, 8);
             ConsoleColor? activeForeground = null, activeBackground = null;
             for (int y = 0; y < Height; y++)
             {
@@ -125,7 +128,18 @@ namespace LD47
                     {
                         Console.SetCursorPosition(x, y);
                         if (activeForeground != glyph.Foreground) Console.ForegroundColor = glyph.Foreground;
-                        if (activeBackground != glyph.Foreground) Console.BackgroundColor = glyph.Background;
+                        //if (activeBackground != glyph.Foreground)
+                        {
+                            if (DebugCache)
+                            {
+                                Console.BackgroundColor = bg;
+                            }
+                            else
+                            {
+                                Console.BackgroundColor = glyph.Background;
+                            }
+                        }
+
                         Console.Write(glyph.Character);
                         count++;
 

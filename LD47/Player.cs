@@ -14,13 +14,14 @@ namespace LD47
         public Player(string name)
         {
             Name = name;
-            HP = MaxHP = 10;
+            HP = MaxHP = 1000;
             Strength = MaxStrength = 1;
             Level = 1;
             Experience = 0;
             XpToLevelUp = 20;
             Faction = Faction.Player;
             CanOperateDoors = true;
+            EnergyGain = 12;
 
             Character = '@';
             ForegroundColor = ConsoleColor.Blue;

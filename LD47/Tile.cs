@@ -13,6 +13,11 @@ namespace LD47
                 Character = ' ',
                 Solid = false,
             }},
+            {'.', new Tile{
+                Name = "Floor",
+                Character = '.',
+                Solid = false,
+            }},
             {'#', new Tile{
                 Name = "Wall",
                 Character = '#',
